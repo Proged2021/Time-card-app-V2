@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  web:
+    build: .
+    
+    volumes:
+      - .:/app
+    ports:
+      # Macの5001ポートをコンテナの5000ポートにマッピング
+      - "5001:5000"
+    environment:
+      # DBへの接続情報を環境変数に設定
+      - DATABASE_URL=postgresql://dev_user:dev_password@db:5432/attendance_db
+      - SECRET_KEY=supersecret
+    depends_on:
+      - db
+    
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=attendance_db
+      - POSTGRES_USER=dev_user
+      - POSTGRES_PASSWORD=dev_password
+    # DBデータを永続化
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+volumes:
+  postgres_data:
