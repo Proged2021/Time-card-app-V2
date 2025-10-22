@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>授業の追加</h1>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="course_name" class="form-label">授業名</label>
+                    <input type="text" class="form-control" id="course_name" name="course_name" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="start_time" class="form-label">開始時間</label>
+                    <input type="time" class="form-control" id="start_time" name="start_time" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="tolerance_minutes" class="form-label">遅刻許容時間（分）</label>
+                    <input type="number" class="form-control" id="tolerance_minutes" name="tolerance_minutes" 
+                           value="15" min="0" max="60" required>
+                </div>
+                
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">授業を追加</button>
+                    <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary">キャンセル</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

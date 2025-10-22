@@ -6,8 +6,8 @@ services:
     volumes:
       - .:/app
     ports:
-      # Macの5001ポートをコンテナの5000ポートにマッピング
-      - "5001:5000"
+      # Macの5001ポートをコンテナの5001ポートにマッピング
+      - "5001:5001"
     environment:
       # DBへの接続情報を環境変数に設定
       - DATABASE_URL=postgresql://dev_user:dev_password@db:5432/attendance_db
