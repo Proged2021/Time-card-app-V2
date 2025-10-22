@@ -2,7 +2,7 @@
 
 FROM python:3.11-slim
 
-# ❗重要: PostgreSQL接続に必要なシステム依存関係を先にインストール
+# PostgreSQL接続に必要なシステム依存関係を先にインストール
 RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
