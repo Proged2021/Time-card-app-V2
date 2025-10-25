@@ -1,30 +1,63 @@
-version: "3.9"
+version: '3.8'
+
 services:
-  web:
-    build: .
-    
-    volumes:
-      - .:/app
-    ports:
-      # Macの5001ポートをコンテナの5001ポートにマッピング
-      - "5001:5001"
-    environment:
-      # DBへの接続情報を環境変数に設定
-      - DATABASE_URL=postgresql://dev_user:dev_password@db:5432/attendance_db
-      - SECRET_KEY=supersecret
-    depends_on:
-      - db
-    
   db:
     image: postgres:15-alpine
     restart: always
     environment:
-      - POSTGRES_DB=attendance_db
-      - POSTGRES_USER=dev_user
-      - POSTGRES_PASSWORD=dev_password
-    # DBデータを永続化
+      # .env から読み込まれるDB接続情報
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # 💡 PgAdminから参照されるためのネットワーク名
+    networks:
+      - app-network
 
+  app:
+    build: .
+    restart: always
+    command: sh -c "python run.py"
+    ports:
+      - "5001:5001"
+    environment:
+      # .env から読み込まれるAppの設定
+      SECRET_KEY: ${SECRET_KEY}
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      # データベース接続文字列 (サービス名で解決)
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # 💡 新しく追加したPgAdminサービス
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      # .env から読み込まれるPgAdminのログイン情報
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      # ホストの5050ポートでアクセス可能
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - app-network
+      
 volumes:
-  postgres_data:
+  postgres_data: {}
+
+networks:
+  app-network:
+    driver: bridge
