@@ -48,116 +48,42 @@
         </div>
 
         <!-- 統計カード -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">登録授業数</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ courses|length }}</p>
-                    </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <!-- QRスキャナ -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center min-h-[180px]">
+                <div class="flex items-center justify-center w-24 h-24 rounded-full bg-blue-100 text-blue-600 mb-4">
+                    <!-- QRコードスキャナのアイコン -->
+                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                        <rect x="15" y="3" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                        <rect x="3" y="15" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                        <rect x="15" y="15" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+                    </svg>
                 </div>
+                <p class="text-xl font-bold text-gray-900 mt-2">QRスキャナ</p>
             </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-green-100 text-green-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">登録学生数</p>
-                        <p class="text-2xl font-semibold text-gray-900">4</p>
-                    </div>
+            <!-- 出席率 -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center min-h-[180px]">
+                <div class="flex items-center justify-center w-24 h-24 rounded-full bg-green-100 text-green-600 mb-4">
+                    <!-- 出席率のアイコン（ユーザーグループ） -->
+                    <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
                 </div>
+                <p class="text-xl font-bold text-gray-900 mt-2">出席率</p>
             </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">今日の出欠</p>
-                        <p class="text-2xl font-semibold text-gray-900">-</p>
-                    </div>
+            <!-- 時間割変更 -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center min-h-[180px]">
+                <div class="flex items-center justify-center w-24 h-24 rounded-full bg-yellow-100 text-yellow-600 mb-4">
+                    <!-- 時間割変更のアイコン（カレンダー＋時計） -->
+                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="16.5" cy="15.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+                        <path d="M16.5 15.5V13M16.5 15.5H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
                 </div>
+                <p class="text-xl font-bold text-gray-900 mt-2">時間割変更</p>
             </div>
         </div>
-
-        <!-- 授業一覧 -->
-        <div class="bg-white rounded-lg shadow-lg">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-semibold text-gray-800">授業一覧</h2>
-                    <a href="{{ url_for('main.add_course') }}" 
-                       class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
-                        新しい授業を追加
-                    </a>
-                </div>
-            </div>
-            
-            <div class="overflow-x-auto">
-                {% if courses %}
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">授業名</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">担当教師</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">対象所属部</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">開始時間</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">終了時間</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            {% for course in courses %}
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {{ course.name }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ course.teacher.name if course.teacher else '未設定' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ course.target_departments if course.target_departments else '全員' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ course.start_time.strftime('%H:%M') if course.start_time else '-' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ course.end_time.strftime('%H:%M') if course.end_time else '-' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
-                                        <button class="text-blue-600 hover:text-blue-900">編集</button>
-                                        <button class="text-red-600 hover:text-red-900">削除</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <div class="text-center py-8">
-                        <p class="text-gray-500">まだ授業が登録されていません。</p>
-                        <a href="{{ url_for('main.add_course') }}" 
-                           class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
-                            最初の授業を追加
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</body>
-</html>
-
 
