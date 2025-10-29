@@ -9,6 +9,10 @@ from datetime import datetime
 import qrcode
 from io import BytesIO
 from sqlalchemy import cast, Date
+from flask import current_app
+import json
+import hmac
+import hashlib
 
 # Blueprint定義
 main_bp = Blueprint('main', __name__)
@@ -27,13 +31,27 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        
+        print("="*50)
+        print(f"ログイン試行: username={username}, password={password}")
 
         # 教師ログイン判定
         user = Teacher.query.filter_by(username=username).first()
-        if user and user.check_password(password):
-            login_user(user)
-            session['user_type'] = 'teacher'
-            return redirect(url_for('main.admin_dashboard'))
+        print(f"教師検索結果: {user}")
+        
+        if user:
+            print(f"パスワードチェック: {password}")
+            is_valid = user.check_password(password)
+            print(f"パスワード検証結果: {is_valid}")
+            
+            if is_valid:
+                print("パスワード認証成功 - ログインユーザー設定")
+                login_user(user)
+                session['user_type'] = 'teacher'
+                print("リダイレクト先: admin_dashboard")
+                return redirect(url_for('main.admin_dashboard'))
+            else:
+                print("パスワード認証失敗")
 
         # 生徒ログイン判定
         user = Student.query.filter_by(student_id=username).first()
@@ -138,14 +156,24 @@ def student_qrcode_image():
     if not isinstance(current_user, Student):
         abort(403)
 
-    qr_data = current_user.student_id
+    from datetime import datetime
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    data = {
+        "student_id": current_user.student_id,
+        "date": current_date
+    }
+    data_string = json.dumps(data, sort_keys=True)
+    secret_key = current_app.config['SECRET_KEY'].encode()
+    signature = hmac.new(secret_key, data_string.encode(), hashlib.sha256).hexdigest()
+    qr_payload = {**data, "signature": signature}
+
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
         box_size=10,
         border=4,
     )
-    qr.add_data(qr_data)
+    qr.add_data(json.dumps(qr_payload))
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
 
@@ -154,18 +182,15 @@ def student_qrcode_image():
     buffer.seek(0)
     return Response(buffer.getvalue(), mimetype='image/png')
 
-
 # ===============================================
 # 出欠登録 (UC-03, UC-05)
 # ===============================================
 
 @main_bp.route('/scan/<int:course_id>', methods=['GET', 'POST'])
 def scan_attendance(course_id):
-    """QRスキャンによる出欠登録"""
     course = Course.query.get_or_404(course_id)
     now = datetime.now()
 
-    # 授業有効期間チェック
     if not course.is_active():
         flash('この授業の出欠登録期間は終了しました。', 'error')
         return render_template('scan.html', course=course, step=2, message='期間外')
@@ -173,11 +198,31 @@ def scan_attendance(course_id):
     if request.method == 'GET':
         return render_template('scan.html', course=course, step=1)
 
-    student_id_input = request.form.get('student_id')
-    student = Student.query.filter_by(student_id=student_id_input).first()
+    try:
+        qr_data = json.loads(request.form.get('student_id'))
+        student_id = qr_data.get('student_id')
+        date = qr_data.get('date')
+        signature = qr_data.get('signature')
+    except Exception:
+        flash('QRコードが不正です', 'error')
+        return render_template('scan.html', course=course, step=1)
 
+    today = datetime.now().strftime("%Y-%m-%d")
+    if date != today:
+        flash('QRコードの有効期限が切れています', 'error')
+        return render_template('scan.html', course=course, step=1)
+
+    data = {"student_id": student_id, "date": date}
+    data_string = json.dumps(data, sort_keys=True)
+    secret_key = current_app.config['SECRET_KEY'].encode()
+    expected_signature = hmac.new(secret_key, data_string.encode(), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(signature, expected_signature):
+        flash('QRコードが改ざんされています', 'error')
+        return render_template('scan.html', course=course, step=1)
+
+    student = Student.query.filter_by(student_id=student_id).first()
     if not student:
-        flash(f'学籍番号 {student_id_input} が見つかりません。', 'error')
+        flash(f'学籍番号 {student_id} が見つかりません。', 'error')
         return render_template('scan.html', course=course, step=1)
 
     # 同一授業・同一日で重複登録防止
@@ -192,9 +237,7 @@ def scan_attendance(course_id):
         flash('既に本日の出欠が登録されています。', 'warning')
         return render_template('scan.html', course=course, step=2, status='重複')
 
-    # 出席 or 遅刻判定
     status = course.get_status(now)
-
     attendance_record = Attendance(
         student=student, course=course, scan_time=now, status=status
     )
